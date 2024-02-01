@@ -5,15 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Http\Requests\categories\StoreCategoryRequest;
 use App\Http\Requests\categories\UpdateCategoryRequest;
+use App\Http\Responses\ApiResponse;
+use Exception;
+use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         //
+        $categories = Category::paginate($request->get('per_page', 10));
+        return $categories;
     }
 
     /**
@@ -30,6 +35,12 @@ class CategoryController extends Controller
     public function store(StoreCategoryRequest $request)
     {
         //
+        $category = Category::create($request->validated());
+        try {
+            return ApiResponse::success('Resource created successfully.', 201, $category);
+        } catch (Exception $e) {
+            return ApiResponse::error('Something went wrong.', 422, $category);
+        }
     }
 
     /**
@@ -38,6 +49,8 @@ class CategoryController extends Controller
     public function show(Category $category)
     {
         //
+        $category = Category::find($category);
+        return ApiResponse::success('Resource found successfully.', 202, $category);
     }
 
     /**
@@ -54,6 +67,8 @@ class CategoryController extends Controller
     public function update(UpdateCategoryRequest $request, Category $category)
     {
         //
+        $category->update($request->validated());
+        return ApiResponse::success('Resource updated successfully', 200, $category);
     }
 
     /**
@@ -62,5 +77,7 @@ class CategoryController extends Controller
     public function destroy(Category $category)
     {
         //
+        $category->delete();
+        return ApiResponse::success('Resource deleted successfully', 200);
     }
 }

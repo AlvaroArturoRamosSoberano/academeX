@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CourseController;
+use App\Http\Controllers\EnnrollmentController;
+use App\Http\Controllers\LevelController;
+use App\Http\Controllers\StatusController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,3 +22,9 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::apiResource('categories', CategoryController::class);
+Route::apiResource('courses', CourseController::class);
+Route::apiResource('ennrollments', EnnrollmentController::class);
+Route::apiResource('levels', LevelController::class);
+Route::apiResource('statuses', StatusController::class);

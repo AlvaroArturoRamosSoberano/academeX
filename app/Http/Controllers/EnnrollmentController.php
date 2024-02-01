@@ -5,15 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\Ennrollment;
 use App\Http\Requests\ennrollments\StoreEnnrollmentRequest;
 use App\Http\Requests\ennrollments\UpdateEnnrollmentRequest;
+use App\Http\Responses\ApiResponse;
+use Exception;
+use Illuminate\Http\Request;
 
 class EnnrollmentController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         //
+        $ennrollments = Ennrollment::paginate($request->get('per_page', 10));
+        return $ennrollments;
     }
 
     /**
@@ -30,6 +35,12 @@ class EnnrollmentController extends Controller
     public function store(StoreEnnrollmentRequest $request)
     {
         //
+        $ennrollment = Ennrollment::create($request->validated());
+        try {
+            return ApiResponse::success('Resource created successfully.', 201, $ennrollment);
+        } catch (Exception $e) {
+            return ApiResponse::error('Something went wrong.', 422, $ennrollment);
+        }
     }
 
     /**
@@ -38,6 +49,8 @@ class EnnrollmentController extends Controller
     public function show(Ennrollment $ennrollment)
     {
         //
+        $ennrollment = Ennrollment::find($ennrollment);
+        return ApiResponse::success('Resource found successfully.', 202, $ennrollment);
     }
 
     /**
@@ -54,7 +67,10 @@ class EnnrollmentController extends Controller
     public function update(UpdateEnnrollmentRequest $request, Ennrollment $ennrollment)
     {
         //
+        $ennrollment->update($request->validated());
+        return ApiResponse::success('Resource updated successfully', 200, $ennrollment);
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -62,5 +78,7 @@ class EnnrollmentController extends Controller
     public function destroy(Ennrollment $ennrollment)
     {
         //
+        $ennrollment->delete();
+        return ApiResponse::success('Resource deleted successfully', 200);
     }
 }

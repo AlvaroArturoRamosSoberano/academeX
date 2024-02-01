@@ -5,15 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\Level;
 use App\Http\Requests\levels\StoreLevelRequest;
 use App\Http\Requests\levels\UpdateLevelRequest;
+use App\Http\Responses\ApiResponse;
+use Exception;
+use Illuminate\Http\Request;
 
 class LevelController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         //
+        $levels = Level::paginate($request->get('per_page', 10));
+        return $levels;
     }
 
     /**
@@ -30,6 +35,12 @@ class LevelController extends Controller
     public function store(StoreLevelRequest $request)
     {
         //
+        $level = Level::create($request->validated());
+        try {
+            return ApiResponse::success('Resource created successfully.', 201, $level);
+        } catch (Exception $e) {
+            return ApiResponse::error('Something went wrong.', 422, $level);
+        }
     }
 
     /**
@@ -38,6 +49,8 @@ class LevelController extends Controller
     public function show(Level $level)
     {
         //
+        $level = Level::find($level);
+        return ApiResponse::success('Resource found successfully.', 202, $level);
     }
 
     /**
@@ -54,6 +67,8 @@ class LevelController extends Controller
     public function update(UpdateLevelRequest $request, Level $level)
     {
         //
+        $level->update($request->validated());
+        return ApiResponse::success('Resource updated successfully', 200, $level);
     }
 
     /**
@@ -62,5 +77,7 @@ class LevelController extends Controller
     public function destroy(Level $level)
     {
         //
+        $level->delete();
+        return ApiResponse::success('Resource deleted successfully', 200);
     }
 }
